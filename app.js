@@ -5,6 +5,9 @@ const morgan = require("morgan");
 let voitures = require("./mock-voitures.js");
 const {Sequelize} = require("sequelize");
 const bodyParser = require("body-parser");
+const VoitureModel = require("./src/models/voitures.js");
+const ReservationModel = require("./src/models/reservation.js");
+const UserModel = require("./src/models/user.js");
 
 const app = express();
 const port = 3000;
@@ -25,7 +28,12 @@ sequelize.authenticate().then(() => {
     console.error('Unable to connect to the database:', error);
 })
 
+const Voiture = VoitureModel(sequelize, Sequelize);
+const Reservation = ReservationModel(sequelize, Sequelize);
+const User = UserModel(sequelize, Sequelize);
 
+sequelize.sync({force: true})
+.then(_ => console.log('la table de données a bien été créee'))
 
 //MIDDELWARES
 
