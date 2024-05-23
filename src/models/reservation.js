@@ -1,6 +1,6 @@
 
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('User', {
+  return sequelize.define('Reservation', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
