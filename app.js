@@ -1,113 +1,123 @@
 const express = require("express");
-const {success, getUniqueId} = require("./helper.js");
+const { success, getUniqueId } = require("./helper.js");
 const { response } = require("express");
 const morgan = require("morgan");
 let voitures = require("./mock-voitures.js");
-const {Sequelize} = require("sequelize");
+const { Sequelize } = require("sequelize");
 const bodyParser = require("body-parser");
 const VoitureModel = require("./src/models/voitures.js");
 const ReservationModel = require("./src/models/reservation.js");
 const UserModel = require("./src/models/user.js");
 
 const app = express();
-const port = 3000;
+const port = 3006;
 
-// installer sequelize
-
-const sequelize = new Sequelize(
-'autoeco', 
-'root', 
-'', {
-        host: 'localhost',
-        dialect: 'mariadb',
-    });
-
-sequelize.authenticate().then(() => {
-    console.log('Connection has been established successfully.');
-}).catch((error) => {
-    console.error('Unable to connect to the database:', error);
-})
-
-const Voiture = VoitureModel(sequelize, Sequelize);
-const Reservation = ReservationModel(sequelize, Sequelize);
-const User = UserModel(sequelize, Sequelize);
-
-sequelize.sync({force: true})
-.then(_ => console.log('la table de données a bien été créee'))
-
-//MIDDELWARES
-
+// Middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
-//point de terminaison
 
-app.get("/", (req, res) => {
-    res.send("Hello Vazgen");
-});
+async function main() {
+    // Connexion à la base de données
+    const connection = new Sequelize(
+        'autoeco', 
+        'root', 
+        '', 
+        {
+            host: 'localhost',
+            dialect: 'mariadb',
+        }
+    );
 
+    try {
+        await connection.authenticate();
+        console.log('Connection has been established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+        return;
+    }
 
-//point de terminaison  de app a la base de donnee
+    // Initialisation des modèles
+    VoitureModel(connection, Sequelize);
+    ReservationModel(connection, Sequelize);
+    UserModel(connection, Sequelize);
 
-app.get ("/api/voitures/:id", (req, res) => {
-    const id = parseInt(req.params.id);
-    const name = req.query.name;
-    const voiture = voitures.find(voiture => voiture.id === id);
-    const message = name ? `Bonjour ${name}` : `Bonjour ${voiture.name}`;
+    const {
+        User,
+        Reservation,
+        Voiture
+    } = connection.models;
 
-    res.json(success(message,voiture))
-})
+    // Définition des relations entre les modèles
+    User.hasMany(Reservation, { as: "reservations" });
+    Reservation.belongsTo(User);
 
-//point de terminaison pour récuper toutes les voitures
+    Voiture.hasMany(Reservation, { as: "reservations" });
+    Reservation.belongsTo(Voiture);
 
-app.get('/api/voitures', (req, res) => {
-    const message =`la liste des voitures a bien été récupéré`;
-    res.json(success(message, voitures))
-});
+    // Synchronisation avec la base de données
+    await connection.sync();
+    console.log('Synchro OK');
 
-//Ajouter une nouvelle voiture dans node express
+    // Exportation des modèles
+    module.exports = {
+        User,
+        Reservation,
+        Voiture
+    };
 
+    connection.sync({ force: true })
+        .then(_ => console.log('La table de données a bien été créée'));
 
-  
-app.post('/api/voitures', (req, res) => {
-    const id = getUniqueId(voitures)
-    const voitureCreated = { ...req.body, ...{id: id, created: new Date()}}
-    voitures.push(voitureCreated)
-    const message = `La voiture  ${voitureCreated.name} a bien été crée.`
-    res.json(success(message, voitureCreated))
-  });
+    // Points de terminaison
 
-  
-   // ...mettre a jour une voiture 
-
-app.put('/api/voitures/:id', (req, res) => {
-  
-
-    const id = parseInt(req.params.id);
-    const voitureUpdated = { ...req.body, id: id }
-    voitures = voitures.map(voiture => {
-     return voiture.id === id ? voitureUpdated : voiture
-    })
-    const message = `Le véhicule  ${voitureUpdated.name} a bien été modifié.`
-    res.json(success(message, voitureUpdated))
-
+    app.get("/", (req, res) => {
+        res.send("Hello Vazgen");
     });
-    
-    //Suppression d'une voiture
 
-    /*  Supprimer une voiture */
+    app.get("/api/voitures/:id", (req, res) => {
+        const id = parseInt(req.params.id);
+        const name = req.query.name;
+        const voiture = voitures.find(voiture => voiture.id === id);
+        const message = name ? `Bonjour ${name}` : `Bonjour ${voiture.name}`;
 
-app.delete('/api/voitures/:id', (req, res) => {
+        res.json(success(message, voiture));
+    });
 
-    const id = parseInt(req.params.id)
-    const voitureDeleted = voitures.find(voiture => voiture.id === id)
-    voitures.filter(voiture => voiture.id !== id)
-    const message = `Le vehicule ${voitureDeleted.name} a bien été supprimé.`
-    res.json(success(message, voitureDeleted))
-  });
+    app.get('/api/voitures', (req, res) => {
+        const message = `La liste des voitures a bien été récupérée.`;
+        res.json(success(message, voitures));
+    });
 
+    app.post('/api/voitures', (req, res) => {
+        const id = getUniqueId(voitures);
+        const voitureCreated = { ...req.body, id: id, created: new Date() };
+        voitures.push(voitureCreated);
+        const message = `La voiture ${voitureCreated.name} a bien été créée.`;
+        res.json(success(message, voitureCreated));
+    });
 
-app.listen(port, () => {   
-    console.log(`Example app listening at http://localhost:${port}`);
+    app.put('/api/voitures/:id', (req, res) => {
+        const id = parseInt(req.params.id);
+        const voitureUpdated = { ...req.body, id: id };
+        voitures = voitures.map(voiture => {
+            return voiture.id === id ? voitureUpdated : voiture;
+        });
+        const message = `Le véhicule ${voitureUpdated.name} a bien été modifié.`;
+        res.json(success(message, voitureUpdated));
+    });
 
+    app.delete('/api/voitures/:id', (req, res) => {
+        const id = parseInt(req.params.id);
+        const voitureDeleted = voitures.find(voiture => voiture.id === id);
+        voitures = voitures.filter(voiture => voiture.id !== id);
+        const message = `Le véhicule ${voitureDeleted.name} a bien été supprimé.`;
+        res.json(success(message, voitureDeleted));
+    });
 
-})
+    app.listen(port, () => {   
+        console.log(`Example app listening at http://localhost:${port}`);
+    });
+}
+
+// Appel de la fonction principale
+main();
