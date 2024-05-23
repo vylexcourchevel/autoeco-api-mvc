@@ -49,15 +49,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     available: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
-      
+      allowNull: false,  
     },
-    created: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    }
+  
   }, {
     timestamps: true,
+    createdAt: 'created',
+    updatedAt: false
   
   });
 }

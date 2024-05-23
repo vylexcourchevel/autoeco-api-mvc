@@ -1,51 +1,48 @@
 const express = require("express");
 const { success, getUniqueId } = require("./helper.js");
-const { response } = require("express");
 const morgan = require("morgan");
-let voitures = require("./mock-voitures.js");
-const { Sequelize } = require("sequelize");
+const { Sequelize, DataTypes } = require("sequelize");
 const bodyParser = require("body-parser");
 const VoitureModel = require("./src/models/voitures.js");
 const ReservationModel = require("./src/models/reservation.js");
 const UserModel = require("./src/models/user.js");
+let voitures = require("./mock-voitures.js");
 
 const app = express();
-const port = 3006;
+const port = 3000;
 
 // Middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 
-async function main() {
+
     // Connexion à la base de données
-    const connection = new Sequelize(
+    const sequelize = new Sequelize(
         'autoeco', 
         'root', 
         '', 
-        {
-            host: 'localhost',
-            dialect: 'mariadb',
+    {
+        host: 'localhost',
+        dialect: 'mariadb',
         }
     );
 
-    try {
-        await connection.authenticate();
-        console.log('Connection has been established successfully.');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-        return;
-    }
+    sequelize.authenticate()
+    .then(_=> console.log('Connexion au serveur de base de données reussie'))
+    .catch(error => console.log(`Connexion au serveur de base de données echouée${error}`))
+
+
 
     // Initialisation des modèles
-    VoitureModel(connection, Sequelize);
-    ReservationModel(connection, Sequelize);
-    UserModel(connection, Sequelize);
+    VoitureModel(sequelize, Sequelize);
+    ReservationModel(sequelize, Sequelize);
+    UserModel(sequelize, Sequelize);
 
     const {
         User,
         Reservation,
         Voiture
-    } = connection.models;
+    } = sequelize.models;
 
     // Définition des relations entre les modèles
     User.hasMany(Reservation, { as: "reservations" });
@@ -55,69 +52,90 @@ async function main() {
     Reservation.belongsTo(Voiture);
 
     // Synchronisation avec la base de données
-    await connection.sync();
-    console.log('Synchro OK');
+    sequelize.sync({ force: true })
+    .then(_ => {
+        console.log('La table de données a bien été créée')
 
-    // Exportation des modèles
-    module.exports = {
-        User,
-        Reservation,
-        Voiture
-    };
+        Voiture.create({
+            name : 'Peugeot',
+            model : 2008,
+            fuelType : 'essence',
+            price : 14000 ,
+            kilometre : 86000 ,
+            category : 'SUV',
+            year : 2016,
+            picture : '../images/peugeot/3008.jpg',
+            available : true
+        }).then(Peugeot => 
+            console.log(Peugeot.toJSON()))
+        })
+    
+    
 
-    connection.sync({ force: true })
-        .then(_ => console.log('La table de données a bien été créée'));
+    //Exportation des modèles
+    // module.exports = {
+    //     User,
+    //     Reservation,
+    //     Voiture
+    // };
 
     // Points de terminaison
-
     app.get("/", (req, res) => {
         res.send("Hello Vazgen");
     });
 
     app.get("/api/voitures/:id", (req, res) => {
         const id = parseInt(req.params.id);
-        const name = req.query.name;
-        const voiture = voitures.find(voiture => voiture.id === id);
-        const message = name ? `Bonjour ${name}` : `Bonjour ${voiture.name}`;
-
-        res.json(success(message, voiture));
+        const voiture =  Voiture.findByPk(id);
+        if (voiture) {
+            res.json(success("Voiture trouvée.", voiture));
+        } else {
+            res.status(404).json({ error: "Voiture non trouvée." });
+        }
     });
 
-    app.get('/api/voitures', (req, res) => {
-        const message = `La liste des voitures a bien été récupérée.`;
-        res.json(success(message, voitures));
+    app.get('/api/voitures', async (req, res) => {
+        const voitures = await Voiture.findAll();
+        res.json(success("La liste des voitures a bien été récupérée.", voitures));
     });
 
-    app.post('/api/voitures', (req, res) => {
-        const id = getUniqueId(voitures);
-        const voitureCreated = { ...req.body, id: id, created: new Date() };
-        voitures.push(voitureCreated);
-        const message = `La voiture ${voitureCreated.name} a bien été créée.`;
-        res.json(success(message, voitureCreated));
+    app.post('/api/voitures', async (req, res) => {
+        try {
+            const voitureCreated = await Voiture.create(req.body);
+            res.json(success(`La voiture ${voitureCreated.name} a bien été créée.`, voitureCreated));
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
     });
 
-    app.put('/api/voitures/:id', (req, res) => {
-        const id = parseInt(req.params.id);
-        const voitureUpdated = { ...req.body, id: id };
-        voitures = voitures.map(voiture => {
-            return voiture.id === id ? voitureUpdated : voiture;
-        });
-        const message = `Le véhicule ${voitureUpdated.name} a bien été modifié.`;
-        res.json(success(message, voitureUpdated));
+    app.put('/api/voitures/:id', async (req, res) => {
+        try {
+            const id = parseInt(req.params.id);
+            await Voiture.update(req.body, {
+                where: { id: id }
+            });
+            const voitureUpdated = await Voiture.findByPk(id);
+            res.json(success(`Le véhicule ${voitureUpdated.name} a bien été modifié.`, voitureUpdated));
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
     });
 
-    app.delete('/api/voitures/:id', (req, res) => {
-        const id = parseInt(req.params.id);
-        const voitureDeleted = voitures.find(voiture => voiture.id === id);
-        voitures = voitures.filter(voiture => voiture.id !== id);
-        const message = `Le véhicule ${voitureDeleted.name} a bien été supprimé.`;
-        res.json(success(message, voitureDeleted));
+    app.delete('/api/voitures/:id', async (req, res) => {
+        try {
+            const id = parseInt(req.params.id);
+            const voitureDeleted = await Voiture.findByPk(id);
+            if (voitureDeleted) {
+                await voitureDeleted.destroy();
+                res.json(success(`Le véhicule ${voitureDeleted.name} a bien été supprimé.`, voitureDeleted));
+            } else {
+                res.status(404).json({ error: "Voiture non trouvée." });
+            }
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
     });
 
-    app.listen(port, () => {   
+    app.listen(port, () => {
         console.log(`Example app listening at http://localhost:${port}`);
     });
-}
-
-// Appel de la fonction principale
-main();
