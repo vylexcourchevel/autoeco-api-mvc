@@ -56,18 +56,20 @@ app.use(bodyParser.json());
     .then(_ => {
         console.log('La table de données a bien été créée')
 
+    voitures.map((voiture) => {
         Voiture.create({
-            name : 'Peugeot',
-            model : 2008,
-            fuelType : 'essence',
-            price : 14000 ,
-            kilometre : 86000 ,
-            category : 'SUV',
-            year : 2016,
-            picture : '../images/peugeot/3008.jpg',
+            name : voiture.name,
+            model : voiture.model,
+            fuelType : voiture.fuelType,
+            price : voiture.price, 
+            kilometre : voiture.kilometre,
+            category : voiture.category,
+            year : voiture.year,
+            picture : voiture.picture,
             available : true
-        }).then(Peugeot => 
-            console.log(Peugeot.toJSON()))
+        }).then(Peugeot => console.log(Peugeot.toJSON()))
+
+        })
         })
     
     
