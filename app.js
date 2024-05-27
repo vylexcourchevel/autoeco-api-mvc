@@ -29,9 +29,14 @@ sequelize.authenticate()
   .catch(error => console.log(`Connexion au serveur de base de données échouée: ${error}`));
 
 // Initialisation des modèles
-const Voiture = VoitureModel(sequelize, Sequelize);
-const Reservation = ReservationModel(sequelize, Sequelize);
-const User = UserModel(sequelize, Sequelize);
+ VoitureModel(sequelize, Sequelize);
+ ReservationModel(sequelize, Sequelize);
+ UserModel(sequelize, Sequelize);
+
+//Creation de models pour les exporter 
+
+
+const {  User,  Voiture,  Reservation } = sequelize.models;
 
 // Définition des relations entre les modèles
 User.hasMany(Reservation, { as: "reservations" });
@@ -173,3 +178,10 @@ sequelize.sync({ force: true })
         console.log(`Example app listening at http://localhost:${port}`);
       });
 
+      module.exports = { 
+        User,
+        Voiture,
+        Reservation 
+      } 
+
+       
