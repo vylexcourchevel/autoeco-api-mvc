@@ -1,4 +1,4 @@
-const Reservation = [
+const reservations = [
 
     {   
         id: 1,
@@ -24,3 +24,5 @@ const Reservation = [
         created: new Date()
     }
 ]
+
+module.exports = reservations
