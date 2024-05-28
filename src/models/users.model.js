@@ -16,10 +16,10 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        //unique: true
       },
       phoneNumber: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.STRING,
         allowNull: false
       },
       password: {

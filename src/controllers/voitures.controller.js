@@ -1,7 +1,4 @@
-const {
-    Voiture,
-    User
-} = require('../db/sequelize.js')
+const { Voiture} = require('../db/sequelize.js')
 
 const add = async (req, res) => {
     try {

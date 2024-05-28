@@ -3,6 +3,8 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const sequelize = require("./src/db/sequelize");
 const voitureRouter = require("./src/routes/voitures");
+const userRouter = require("./src/routes/user");
+const reservationRouter = require("./src/routes/reservations");
 
 
 const app = express();
@@ -19,8 +21,8 @@ app.use(bodyParser.json());
 //point de terminaison de la base de données
 
 app.use ('/api/voitures', voitureRouter);
-
-
+app.use ('/api/users', userRouter);
+app.use ('/api/reservations', reservationRouter);
 
 
 

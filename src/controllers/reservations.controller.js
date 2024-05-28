@@ -1,4 +1,4 @@
-const { Reservation, User, Voiture } = require('../models');
+const { Reservation, User, Voiture } = require('../db/sequelize.js');
 
 const getAllReservations = async (req, res) => {
     try {

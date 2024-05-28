@@ -1,4 +1,5 @@
-const { User, Reservation } = require('../models');
+const {User} = require('../db/sequelize.js');
+
 
 const addUser = async (req, res) => {
     try {
