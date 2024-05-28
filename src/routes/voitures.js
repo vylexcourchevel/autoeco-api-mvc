@@ -1,14 +1,12 @@
-const  express = require("express");
-const  {
-    add
-} = require( "../controllers/voitures.controller.js");
+const express = require('express');
+const { add, getAll, getById, updateById, deleteById } = require('../controllers/voitures.controller.js');
 
 const router = express.Router();
 
-// Route POST pour créer un nouvel article
-// On utilise un middleware pour vérifier le token
-router.post('/', add)
+router.post('/', add); // Ajouter une voiture
+router.get('/', getAll); // Obtenir toutes les voitures
+router.get('/:id', getById); // Obtenir une voiture par ID
+router.put('/:id', updateById); // Mettre à jour une voiture par ID
+router.delete('/:id', deleteById); // Supprimer une voiture par ID
 
-
-// Exportation du router
 module.exports = router;

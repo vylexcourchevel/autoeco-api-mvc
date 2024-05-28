@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const VoitureModel = require("../models/voitures.js");  // Chemin corrigé
-const ReservationModel = require("../models/reservations.js");  // Chemin corrigé
-const UserModel = require("../models/users.js");  // Chemin corrigé
+const VoitureModel = require("../models/voitures.model.js");  // Chemin corrigé
+const ReservationModel = require("../models/reservations.model.js");  // Chemin corrigé
+const UserModel = require("../models/users.model.js");  // Chemin corrigé
 const reservations = require("../db/mock-reservations.js");  // Chemin corrigé
 const voitures = require("../db/mock-voitures.js");  // Chemin corrigé
 const users = require("../db/mock-users.js");  // Chemin corrigé

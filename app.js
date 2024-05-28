@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const sequelize = require("./src/db/sequelize");
 const voitureRouter = require("./src/routes/voitures");
 
+
 const app = express();
 const port = process.env.PORT || 3002;
 
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 //point de terminaison de la base de données
 
 app.use ('/api/voitures', voitureRouter);
+
 
 
 
