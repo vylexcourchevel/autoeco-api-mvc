@@ -2,7 +2,7 @@ const { Voiture} = require('../db/sequelize.js')
 
 const add = async (req, res) => {
     try {
-       
+       console.log(req.body)
         // On crée une nouvelle voiture et avec les informations reçues dans le corps de la requête
         const voiture = await Voiture.create(req.body)
         // On renvoie le nouvel vehicule avec un statut 201

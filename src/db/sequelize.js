@@ -30,35 +30,35 @@ Voiture.hasMany(Reservation, { as: "reservations" });
 Reservation.belongsTo(Voiture);
 
 // Synchronisation avec la base de données
-sequelize.sync({ force: true })
+sequelize.sync()
     .then(() => {
         console.log('La table de données a bien été créée');
-        voitures.map(voiture => {
-            Voiture.create({
-                name: voiture.name,
-                model: voiture.model,
-                fuelType: voiture.fuelType,
-                price: voiture.price,
-                kilometre: voiture.kilometre,
-                category: voiture.category,
-                year: voiture.year,
-                picture: voiture.picture,
-                available: true,
-            }).then(voiture => console.log(voiture.toJSON()))
-        });
-        users.map(user => {
-            User.create({
-                firstName: user.firstName,
-                lastName: user.lastName,
-                adress: user.adress,
-                email: user.email,
-                phoneNumber: user.phoneNumber,
-                password: user.password
-            }).then(user => console.log(user.toJSON()))
-        });
-        reservations.map(reservation => {
-            Reservation.create(reservation).then(reservation => console.log(reservation.toJSON()))
-        });
+        // voitures.map(voiture => {
+        //     Voiture.create({
+        //         name: voiture.name,
+        //         model: voiture.model,
+        //         fuelType: voiture.fuelType,
+        //         price: voiture.price,
+        //         kilometre: voiture.kilometre,
+        //         category: voiture.category,
+        //         year: voiture.year,
+        //         picture: voiture.picture,
+        //         available: true,
+        //     })
+        // });
+        // users.map(user => {
+        //     User.create({
+        //         firstName: user.firstName,
+        //         lastName: user.lastName,
+        //         adress: user.adress,
+        //         email: user.email,
+        //         phoneNumber: user.phoneNumber,
+        //         password: user.password
+        //     })
+        // });
+        // reservations.map(reservation => {
+        //     Reservation.create(reservation)
+        // });
         console.log('La base de donnée a bien été initialisée !');
     });
 

@@ -1,6 +1,5 @@
 const users = [
     {
-      id: 1,
       firstName: "Vazgen",
       lastName: "Agopoff",
       adress: "3 avenue de chanzy,saint maur",
@@ -12,7 +11,6 @@ const users = [
     },
 
     {
-      id: 2,
       firstName: "shushan",
       lastName: "Zohrabyan",
       adress: "3 avenue de chanzy,saint maur",
@@ -24,7 +22,6 @@ const users = [
     },
 
     {
-      id: 3,
       firstName: "Vighen",
       lastName: "Agopoff",
       adress: "3 avenue de chanzy,saint maur",

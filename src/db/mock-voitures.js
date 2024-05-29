@@ -1,6 +1,5 @@
 const voitures = [
    { 
-     id: 1,
      name: "Peugeot",
      model: 3008,
      fuelType: "essence",
@@ -15,7 +14,6 @@ const voitures = [
     },
 
     {           
-    id: 2,
     name: " Audi",
     model:  "Q7",
     fuelType: "Deisel", 
@@ -30,7 +28,6 @@ const voitures = [
     },
 
     {    
-    id: 3,
     name: "Renault",
     model:  "Arkana",
     fuelType:  "Diesel",
@@ -45,7 +42,6 @@ const voitures = [
     },
 
     {    
-    id: 4,
     name: "Mercedes",
     model:  "classe S",
     fuelType:  "Diesel",
@@ -60,7 +56,6 @@ const voitures = [
     },
 
     {    
-    id: 5,
     name: "Citroen",
     model:  "Berlingo",
     fuelType: "Diesel" ,
