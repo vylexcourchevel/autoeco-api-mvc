@@ -6,6 +6,7 @@ const reservations = require("../db/mock-reservations.js");  // Chemin corrigé
 const voitures = require("../db/mock-voitures.js");  // Chemin corrigé
 const users = require("../db/mock-users.js");  // Chemin corrigé
 
+
 // Connexion à la base de données
 const sequelize = new Sequelize('autoeco', 'root', '', {
     host: 'localhost',
@@ -61,6 +62,8 @@ sequelize.sync()
         // });
         console.log('La base de donnée a bien été initialisée !');
     });
+
+ 
 
 module.exports = {
     User,
